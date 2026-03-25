@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jon Searle — Product & UX Designer</title>
+    <link rel="icon" href="images/logo.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: #fafafa; color: #1a1a1a; }
+
+        h1, h2 { font-family: Georgia, 'Times New Roman', serif; }
+
+        .logo { position: absolute; top: 40px; left: 40px; text-decoration: none; display: flex; align-items: center; }
+
+        .hero { min-height: 95vh; display: flex; align-items: center; justify-content: flex-start; background: #fafafa; padding: 40px 40px 17px 40px; text-align: left; }
+        .hero-content { max-width: 1050px; margin: 0; }
+        .hero h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 72px; font-weight: 400; margin-bottom: 0; letter-spacing: -0.5px; line-height: 1.3; }
+        .hero p { font-family: Georgia, 'Times New Roman', serif; font-size: 35px; line-height: 1.4; color: #1a1a1a; margin-bottom: 40px; font-weight: 400; }
+
+        .accent { color: #2563eb; }
+        .italic { font-style: italic; }
+
+        .cta-group { display: flex; gap: 20px; justify-content: flex-start; flex-wrap: wrap; }
+        .cta-button { display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: 600; text-decoration: none; border-radius: 24px; transition: all 0.3s ease; cursor: pointer; border: none; }
+        .cta-primary { background: #000; color: #fff; }
+        .cta-primary:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); }
+        .cta-secondary { background: transparent; color: #2563eb; border: 2px solid #2563eb; }
+        .cta-secondary:hover { background: #2563eb; color: #fff; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); }
+
+        .portfolio { max-width: 1400px; margin: 0; padding: 16px 40px 80px 40px; }
+        .portfolio-title { text-align: left; font-size: 22px; font-weight: 400; margin-bottom: 30px; color: #1a1a1a; font-style: normal; }
+
+        .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; margin-bottom: 50px; }
+        .gallery-item { overflow: hidden; border-radius: 12px; background: #f5f5f5; aspect-ratio: 16/9; width: 100%; height: auto; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .gallery-item:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15); }
+        .gallery-item img { max-width: 95%; max-height: 95%; width: auto; height: auto; object-fit: contain; display: block; }
+        .gallery-item.wide { grid-column: span 1; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); padding: 40px; overflow: auto; }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { max-width: 100%; max-height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+        .modal-content img { max-width: calc(100vw - 120px); max-height: calc(100vh - 120px); width: auto; height: auto; display: block; }
+        .modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 36px; cursor: pointer; background: rgba(0, 0, 0, 0.5); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+        .modal-close:hover { background: rgba(0, 0, 0, 0.8); }
+
+        footer { background: #fafafa; padding: 40px 40px; text-align: left; border-top: 1px solid #e8ddd7; }
+
+        @media (max-width: 768px) {
+            .logo { top: 30px; left: 20px; font-size: 18px; }
+            .hero { padding: 40px 20px 60px 20px; }
+            .hero h1 { font-size: 44px; }
+            .hero p { font-size: 18px; }
+            .portfolio { padding: 60px 20px; }
+            .portfolio-title { font-size: 36px; margin-bottom: 50px; }
+            .gallery { grid-template-columns: 1fr; gap: 20px; margin-bottom: 60px; }
+            .gallery-item.wide { grid-column: auto; }
+            footer { padding: 60px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#" class="logo"><img src="images/logo.svg" alt="Logo" style="height: 40px; width: auto;"></a>
+    <section class="hero">
+        <div class="hero-content">
+            <p>Hello,<br>I'm a Product Designer & Product Manager with 15+ years' experience shaping digital products. Worked with Apple, BBC, and Samsung. Specialist in AI-native design and discovery-led development. Currently a solo founder building MOTR. Open to senior product and design roles.</p>
+            <div class="cta-group">
+                <a href="mailto:jon.searle@gmail.com" class="cta-button cta-primary">Get in Touch</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="portfolio">
+        <h2 class="portfolio-title">Here's some of my work</h2>
+        <div class="gallery" id="gallery"></div>
+    </section>
+
+    <footer>
+        <a href="mailto:jon.searle@gmail.com" class="cta-button cta-primary">Get in Touch</a>
+    </footer>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close">&times;</span>
+            <div style="display: flex; flex-direction: column; align-items: center; max-width: 90vw;">
+                <img id="modal-image" src="" alt="" style="max-width: 100%; max-height: calc(100vh - 200px); width: auto; height: auto;">
+                <p id="modal-caption" style="color: white; text-align: center; margin-top: 20px; font-size: 16px; max-width: 90vw; word-wrap: break-word;"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const images = [
+            { file: 'images/digital-signage.png', title: 'Freespace | Digital Signage', description: 'Digital wayfinding system for office spaces with for desk and room booking.' },
+            { file: 'images/Bike rent.png', title: 'Bike Rent | Booking Platform', description: 'Seamless bike rental experience with location-based search, date selection and bike type filtering across multiple locations.' },
+            { file: 'images/Motr book.png', title: 'Motr | Service Booking', description: 'Comprehensive service booking interface for vehicle maintenance with multiple service tier options and scheduling.' },
+            { file: 'images/eptura-app.png', title: 'Eptura | Workspace Management', description: 'Enterprise workspace booking and management platform for office coordination and resource allocation.' },
+            { file: 'images/Utilisation.png', title: 'Condeco | Utilisation Dashboard', description: 'Analytics dashboard tracking space utilisation and occupancy rates.' },
+            { file: 'images/Acala.png', title: 'Acala | DeFi Protocol Interface', description: 'Cryptocurrency minting platform for Acala aUSD, featuring deposit management and risk controls for DeFi users.' },
+            { file: 'images/Motr garage.png', title: 'MOTR | Garage Management', description: 'Booking management app to enable garage owners to easily stay in control of the booking system.' },
+            { file: 'images/easy-money.png', title: 'easyMoney | Mobile Banking', description: 'Modern fintech mobile app with multi-currency support, account management and seamless payment integration.' }
+        ];
+
+        const gallery = document.getElementById('gallery');
+        images.forEach((imageObj, index) => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            if (index === 0 || index === 3) item.classList.add('wide');
+            const imgElement = document.createElement('img');
+            imgElement.src = imageObj.file;
+            imgElement.alt = imageObj.title;
+            item.appendChild(imgElement);
+            item.addEventListener('click', () => {
+                document.getElementById('modal-image').src = imageObj.file;
+                document.getElementById('modal-caption').textContent = imageObj.title + ' — ' + imageObj.description;
+                document.getElementById('modal').classList.add('active');
+            });
+            gallery.appendChild(item);
+        });
+        document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal').classList.remove('active'));
+        document.getElementById('modal').addEventListener('click', (e) => { if (e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('active'); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.getElementById('modal').classList.remove('active'); });
+    </script>
+</body>
+</html>
