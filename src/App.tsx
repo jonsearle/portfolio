@@ -256,10 +256,10 @@ export default function App() {
 
         <section
           id="top"
-          className="px-7 pb-24 pt-32 md:min-h-[690px] md:px-0 md:pb-0 md:pt-0"
+          className="px-7 pb-20 pt-32 md:min-h-[560px] md:px-0 md:pb-0 md:pt-0"
         >
           <div className="mx-auto max-w-[1440px] md:px-[168px]">
-            <div className="md:pt-[196px]">
+            <div className="md:pt-[176px]">
               <Reveal>
                 <p className="max-w-[70rem] font-serif text-[clamp(27px,2.5vw,36px)] leading-[1.47] tracking-[-0.045em] text-[var(--color-ink)]">
                   Hello,
