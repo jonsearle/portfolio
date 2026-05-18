@@ -267,16 +267,7 @@ export default function App() {
                   I&apos;m a Product Designer & Product Manager with 15+ years&apos;
                   experience shaping digital products. I have worked with Apple,
                   BBC, and Samsung. I&apos;m a specialist in AI-native design and
-                  discovery-led development. Currently a solo founder building
-                  <a
-                    href="https://motr.one/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-bold transition hover:text-[var(--color-accent-blue)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent-blue)]"
-                  >
-                    {" "}
-                    Motr.
-                  </a>
+                  discovery-led development. Open to senior design roles.
                 </p>
               </Reveal>
               <Reveal delay={0.14} y={16}>
