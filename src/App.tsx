@@ -256,7 +256,7 @@ export default function App() {
 
         <section
           id="top"
-          className="px-7 pb-20 pt-32 md:min-h-[560px] md:px-0 md:pb-0 md:pt-0"
+          className="px-7 pb-28 pt-32 md:min-h-[620px] md:px-0 md:pb-0 md:pt-0"
         >
           <div className="mx-auto max-w-[1440px] md:px-[168px]">
             <div className="md:pt-[176px]">
