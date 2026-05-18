@@ -265,7 +265,9 @@ export default function App() {
                   I&apos;m a Designer with 15+ years&apos; experience creating digital
                   experiences for brands including Apple, BBC and Samsung. I
                   specialise in AI-enabled design, rapid prototyping and
-                  interactive experiences. Open to senior design roles.
+                  interactive experiences.
+                  <br />
+                  Open to senior design roles.
                 </p>
               </Reveal>
               <Reveal delay={0.14} y={16}>
