@@ -14,7 +14,7 @@ const capabilities = [
   {
     title: "User Research",
     description:
-      "I use research, observation and behavioural insight to uncover the needs, friction and opportunities that shape successful digital products.",
+      "I use research and behavioural insight to uncover the friction, opportunities and human behaviours that drive innovation and shape effective digital experiences.",
     panelClassName: "bg-[var(--color-cap-teal)] text-[var(--color-cap-teal-text)]",
     align: "left",
     contentClassName: "md:max-w-[35rem]",
@@ -24,9 +24,9 @@ const capabilities = [
     imageClassName: "right-0",
   },
   {
-    title: "Product Design & Strategy",
+    title: "Design & Strategy",
     description:
-      "I design products that balance user needs, business goals and technical realities — helping teams turn complexity into clear, focused experiences.",
+      "I create clear, focused digital experiences that align user behaviour with business goals and commercial impact.",
     panelClassName: "bg-[var(--color-cap-lime)] text-[var(--color-cap-lime-text)]",
     align: "right",
     contentClassName: "md:max-w-[38rem] md:text-right",
@@ -50,7 +50,7 @@ const capabilities = [
   {
     title: "AI Prototyping & Innovation",
     description:
-      "I use AI-native workflows and rapid prototyping to explore ideas faster, validate concepts earlier and accelerate modern product development.",
+      "I use AI-enabled workflows and rapid prototyping to turn ideas into tangible concepts quickly and accelerate modern digital design.",
     panelClassName:
       "bg-[var(--color-cap-indigo)] text-[var(--color-cap-indigo-text)]",
     align: "right",
@@ -262,12 +262,10 @@ export default function App() {
             <div className="md:pt-[176px]">
               <Reveal>
                 <p className="max-w-[70rem] font-serif text-[clamp(27px,2.5vw,36px)] leading-[1.47] tracking-[-0.045em] text-[var(--color-ink)]">
-                  Hello,
-                  <br />
-                  I&apos;m a Product Designer & Product Manager with 15+ years&apos;
-                  experience shaping digital products. I have worked with Apple,
-                  BBC, and Samsung. I&apos;m a specialist in AI-native design and
-                  discovery-led development. Open to senior design roles.
+                  I&apos;m a Designer with 15+ years&apos; experience creating digital
+                  experiences for brands including Apple, BBC and Samsung. I
+                  specialise in AI-enabled design, rapid prototyping and
+                  interactive experiences. Open to senior design roles.
                 </p>
               </Reveal>
               <Reveal delay={0.14} y={16}>
@@ -306,9 +304,14 @@ export default function App() {
               </h2>
             </Reveal>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-4 lg:gap-12">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-10 lg:grid-cols-6 lg:gap-12">
               {portfolioItems.map((item, index) => (
-                <Reveal key={item.title} delay={index * 0.04} y={18}>
+                <Reveal
+                  key={item.title}
+                  delay={index * 0.04}
+                  y={18}
+                  className="lg:col-span-2"
+                >
                   <button
                     type="button"
                     onClick={() => setSelectedItem(item)}
