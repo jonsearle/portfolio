@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+dist/
+*.tsbuildinfo
+.playwright-mcp/
+current-layout*.png
+wide-layout*.png
+index-js.txt
+commons-js.txt
