@@ -276,7 +276,7 @@ export default function App() {
                 <div className="mt-12 flex flex-wrap gap-5">
                   <a
                     href="mailto:jon.searle@gmail.com"
-                    className="inline-flex min-w-[190px] justify-center rounded-full bg-[var(--color-ink)] px-9 py-4 text-base font-bold leading-5 tracking-[-0.01em] text-[var(--color-paper)] transition hover:-translate-y-0.5 hover:bg-[var(--color-accent-blue)] hover:shadow-[0_8px_20px_rgba(37,99,235,0.3)]"
+                    className="inline-flex min-w-[190px] justify-center rounded-full bg-[var(--color-ink)] px-9 py-4 text-base font-bold leading-5 tracking-[-0.01em] text-[var(--color-paper)] transition hover:-translate-y-0.5 hover:bg-[var(--color-cap-teal)] hover:shadow-[0_8px_20px_rgba(13,135,125,0.3)]"
                   >
                     Get in touch
                   </a>
