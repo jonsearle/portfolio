@@ -42,7 +42,7 @@ const capabilities = [
     panelClassName: "bg-[var(--color-cap-red)] text-[var(--color-cap-red-text)]",
     align: "left",
     contentClassName: "md:max-w-[36rem]",
-    image: "/images/panel/visual-brand.png",
+    image: "/images/panel/darker-red.png",
     imageAlt: "Abstract architectural detail for visual design panel",
     imageWrapperClassName: "right-0 w-[clamp(410px,32vw,470px)]",
     imageClassName: "right-0",
@@ -256,16 +256,18 @@ export default function App() {
 
         <section
           id="top"
-          className="px-7 pb-28 pt-32 md:min-h-[620px] md:px-0 md:pb-0 md:pt-0"
+          className="px-7 pb-32 pt-32 md:min-h-[640px] md:px-0 md:pb-0 md:pt-0"
         >
           <div className="mx-auto max-w-[1440px] md:px-[168px]">
             <div className="md:pt-[176px]">
               <Reveal>
                 <p className="max-w-[70rem] font-serif text-[clamp(27px,2.5vw,36px)] leading-[1.47] tracking-[-0.045em] text-[var(--color-ink)]">
-                  I&apos;m a Designer with 15+ years&apos; experience creating digital
+                  Hello,
+                  <br />
+                  I&apos;m a Designer with 20+ years&apos; experience creating digital
                   experiences for brands including Apple, BBC and Samsung. I
                   specialise in AI-enabled design, rapid prototyping and
-                  interactive experiences.
+                  digital innovation.
                   <br />
                   Open to senior design roles.
                 </p>
