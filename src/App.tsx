@@ -264,10 +264,10 @@ export default function App() {
                 <p className="max-w-[70rem] font-serif text-[clamp(27px,2.5vw,36px)] leading-[1.47] tracking-[-0.045em] text-[var(--color-ink)]">
                   Hello,
                   <br />
-                  I&apos;m a Designer with 20+ years&apos; experience creating digital
-                  experiences for brands including Apple, BBC and Samsung. I
-                  specialise in AI-enabled design, rapid prototyping and
-                  digital innovation.
+                  I&apos;m a Designer and Product Manager with 20+ years&apos;
+                  experience creating digital experiences for brands including
+                  Apple, BBC and Samsung. I specialise in AI-enabled design,
+                  rapid prototyping and digital innovation.
                   <br />
                   Open to senior design roles.
                 </p>
