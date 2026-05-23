@@ -1,4 +1,5 @@
 .DS_Store
+.env
 node_modules/
 dist/
 *.tsbuildinfo
@@ -7,3 +8,6 @@ current-layout*.png
 wide-layout*.png
 index-js.txt
 commons-js.txt
+
+# Local Netlify folder
+.netlify

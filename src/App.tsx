@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
@@ -63,6 +63,168 @@ const capabilities = [
 ];
 
 type Capability = (typeof capabilities)[number];
+
+type InterviewPrompt = {
+  label: string;
+  openingQuestion?: string;
+  openingReply?: string;
+};
+
+const interviewPrompts: InterviewPrompt[] = [
+  {
+    label: "Tell me about your experience",
+    openingQuestion: "Tell me about your experience",
+  },
+  {
+    label: "Tell me about your approach to design",
+    openingQuestion: "Tell me about your approach to design",
+  },
+  {
+    label: "Ask me anything",
+    openingReply:
+      "Ask me anything about my work, how I think, or where I might be useful.",
+  },
+];
+
+const interviewIntroMessages = [
+  "Before we start: I don’t really look like this.",
+  "I’m an AI version of Jon trained on his writing, thinking, and professional experience, so occasional hallucinations are possible.",
+  "This isn’t meant to be taken too seriously. The real Jon is a little less polished and not quite so serious looking.",
+];
+
+type InterviewMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  status?: "thinking" | "error";
+};
+
+type InterviewContentBlock =
+  | {
+      type: "paragraph";
+      lines: string[];
+    }
+  | {
+      type: "list";
+      lines: string[];
+    };
+
+function createMessageId() {
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function normalizeInterviewContent(content: string) {
+  return content
+    .replace(/\r\n/g, "\n")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*\n]+)\*/g, "$1")
+    .replace(/\s+-\s+/g, "\n- ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function getInterviewContentBlocks(content: string) {
+  const blocks: InterviewContentBlock[] = [];
+
+  normalizeInterviewContent(content)
+    .split("\n")
+    .forEach((rawLine) => {
+      const line = rawLine.trim();
+
+      if (!line) return;
+
+      const bulletMatch = line.match(/^[-•]\s+(.+)$/);
+      const blockType = bulletMatch ? "list" : "paragraph";
+      const text = bulletMatch?.[1] ?? line;
+      const previousBlock = blocks.at(-1);
+
+      if (previousBlock?.type === blockType) {
+        previousBlock.lines.push(text);
+      } else {
+        blocks.push({ type: blockType, lines: [text] } as InterviewContentBlock);
+      }
+    });
+
+  return blocks;
+}
+
+function InterviewMessageContent({ content }: { content: string }) {
+  const blocks = getInterviewContentBlocks(content);
+
+  return (
+    <div className="space-y-4">
+      {blocks.map((block, blockIndex) =>
+        block.type === "list" ? (
+          <ul
+            key={`${block.type}-${blockIndex}`}
+            className="list-disc space-y-2 pl-5 marker:text-[var(--color-cap-teal)]"
+          >
+            {block.lines.map((line, lineIndex) => (
+              <li key={`${line}-${lineIndex}`}>{line}</li>
+            ))}
+          </ul>
+        ) : (
+          <p key={`${block.type}-${blockIndex}`}>{block.lines.join(" ")}</p>
+        )
+      )}
+    </div>
+  );
+}
+
+function getLocalInterviewReply(question: string) {
+  const normalizedQuestion = question.toLowerCase();
+
+  if (normalizedQuestion.includes("experience")) {
+    return "The live AI endpoint is not connected yet, but the interface is ready. Jon is a designer and product leader with 20+ years of experience creating digital products and services for brands including Apple, BBC and Samsung, with a current focus on AI-enabled design, rapid prototyping and digital innovation.";
+  }
+
+  if (normalizedQuestion.includes("approach") || normalizedQuestion.includes("design")) {
+    return "The live AI endpoint is not connected yet, but the interface is ready. Jon's design approach blends behavioural insight, sharp product strategy and fast prototyping, moving from messy ambiguity to clear, usable digital experiences that can be tested and improved quickly.";
+  }
+
+  return "The live AI endpoint is not connected yet, but the interface is ready. Ask about Jon's product design work, AI prototyping, design leadership, research process, or the kind of senior design roles he is interested in.";
+}
+
+async function requestInterviewReply(messages: InterviewMessage[]) {
+  const cleanMessages = messages
+    .filter((message) => message.status !== "thinking")
+    .map(({ role, content }) => ({ role, content }));
+  const lastUserMessage =
+    [...cleanMessages].reverse().find((message) => message.role === "user")
+      ?.content ?? "";
+
+  let response: Response;
+
+  try {
+    response = await fetch("/.netlify/functions/interview-jon", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ messages: cleanMessages }),
+    });
+  } catch {
+    return getLocalInterviewReply(lastUserMessage);
+  }
+
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (!contentType.includes("application/json")) {
+    return getLocalInterviewReply(lastUserMessage);
+  }
+
+  const data = (await response.json()) as { reply?: string; error?: string };
+
+  if (!response.ok) {
+    throw new Error(data.error ?? "The interview assistant could not reply.");
+  }
+
+  return data.reply?.trim() || getLocalInterviewReply(lastUserMessage);
+}
 
 function Reveal({
   children,
@@ -169,6 +331,386 @@ function CapabilityPanel({
   );
 }
 
+function InterviewJonSection({
+  onStartConversation,
+}: {
+  onStartConversation: (prompt: InterviewPrompt) => void;
+}) {
+  return (
+    <section className="bg-[var(--color-footer)] px-7 py-20 md:px-0 md:py-[118px]">
+      <div className="mx-auto grid max-w-[1440px] gap-12 md:grid-cols-[minmax(280px,440px)_1fr] md:items-center md:gap-20 md:px-[168px]">
+        <Reveal y={18}>
+          <img
+            src="/images/ai-jon.png"
+            alt="AI-generated portrait of Jon Searle"
+            className="mx-auto w-full max-w-[340px] rounded-full shadow-[0_28px_70px_rgba(91,71,71,0.16)] md:max-w-[420px]"
+          />
+        </Reveal>
+
+        <div>
+          <Reveal delay={0.08} y={18}>
+            <p className="mb-4 font-sans text-[10px] font-bold uppercase leading-none tracking-[0] text-[var(--color-ink)] opacity-55 md:text-[11px]">
+              AI INTERVIEW
+            </p>
+            <h2 className="mb-6 font-serif text-[45px] font-semibold leading-[0.98] tracking-[-0.045em] text-[var(--color-ink)] md:text-[72px]">
+              Interview Me
+            </h2>
+          </Reveal>
+
+          <Reveal delay={0.16} y={16}>
+            <p className="max-w-[44rem] text-[18px] font-light leading-[1.62] tracking-[-0.02em] text-[var(--color-ink)] md:text-[21px]">
+              An Ai version of Jon Searle trained on his writing, thinking and
+              professional experience.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.24} y={14}>
+            <div className="mt-10 grid max-w-[45rem] gap-3">
+              {interviewPrompts.map((prompt) => (
+                <button
+                  key={prompt.label}
+                  type="button"
+                  onClick={() => onStartConversation(prompt)}
+                  className="group flex min-h-14 w-full items-center justify-between rounded-full border border-[var(--color-ink)]/18 bg-[var(--color-paper)] px-6 py-4 text-left text-[15px] font-bold leading-5 tracking-[-0.01em] text-[var(--color-ink)] transition hover:-translate-y-0.5 hover:border-[var(--color-cap-teal)] hover:text-[var(--color-cap-teal)] hover:shadow-[0_14px_28px_rgba(91,71,71,0.12)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent-blue)] md:px-7 md:text-base"
+                >
+                  <span>{prompt.label}</span>
+                  <span
+                    aria-hidden="true"
+                    className="ml-4 text-2xl leading-none transition group-hover:translate-x-1"
+                  >
+                    →
+                  </span>
+                </button>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function InterviewChat({
+  prompt,
+  onClose,
+}: {
+  prompt: InterviewPrompt | null;
+  onClose: () => void;
+}) {
+  const [messages, setMessages] = useState<InterviewMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!prompt) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [prompt, onClose]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages]);
+
+  useEffect(() => {
+    if (!prompt) return;
+
+    let isCurrent = true;
+    const introMessages = interviewIntroMessages.map((content) => ({
+      id: createMessageId(),
+      role: "assistant" as const,
+      content,
+    }));
+    const userMessage: InterviewMessage | null = prompt.openingQuestion
+      ? {
+          id: createMessageId(),
+          role: "user",
+          content: prompt.openingQuestion,
+        }
+      : null;
+    const openingReplyMessage: InterviewMessage | null = prompt.openingReply
+      ? {
+          id: createMessageId(),
+          role: "assistant",
+          content: prompt.openingReply,
+        }
+      : null;
+    const thinkingMessage: InterviewMessage = {
+      id: createMessageId(),
+      role: "assistant",
+      content: "Thinking",
+      status: "thinking",
+    };
+    const nextMessages = userMessage ? [userMessage] : [];
+
+    setMessages([]);
+    setInput("");
+    setIsSending(true);
+
+    const runOpeningSequence = async () => {
+      const stagedMessages: InterviewMessage[] = [];
+
+      for (const introMessage of introMessages) {
+        await wait(stagedMessages.length === 0 ? 610 : 1575);
+
+        if (!isCurrent) return;
+
+        stagedMessages.push(introMessage);
+        setMessages([...stagedMessages]);
+      }
+
+      await wait(1490);
+
+      if (!isCurrent) return;
+
+      if (openingReplyMessage) {
+        setMessages([...stagedMessages, openingReplyMessage]);
+        return;
+      }
+
+      setMessages([...stagedMessages, ...nextMessages, thinkingMessage]);
+
+      const reply = await requestInterviewReply(nextMessages);
+
+      if (!isCurrent) return;
+
+      setMessages([
+        ...stagedMessages,
+        ...nextMessages,
+        {
+          id: createMessageId(),
+          role: "assistant",
+          content: reply,
+        },
+      ]);
+    };
+
+    runOpeningSequence()
+      .then((reply) => {
+        return reply;
+      })
+      .catch((error: unknown) => {
+        if (!isCurrent) return;
+
+        setMessages([
+          ...introMessages,
+          ...nextMessages,
+          {
+            id: createMessageId(),
+            role: "assistant",
+            content:
+              error instanceof Error
+                ? error.message
+                : "The interview assistant could not reply.",
+            status: "error",
+          },
+        ]);
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setIsSending(false);
+          window.setTimeout(() => inputRef.current?.focus(), 80);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [prompt]);
+
+  async function sendMessage(content: string) {
+    if (!content.trim() || isSending) return;
+
+    const userMessage: InterviewMessage = {
+      id: createMessageId(),
+      role: "user",
+      content: content.trim(),
+    };
+    const nextMessages = [
+      ...messages.filter((message) => message.status !== "thinking"),
+      userMessage,
+    ];
+    const thinkingMessage: InterviewMessage = {
+      id: createMessageId(),
+      role: "assistant",
+      content: "Thinking",
+      status: "thinking",
+    };
+
+    setMessages([...nextMessages, thinkingMessage]);
+    setInput("");
+    setIsSending(true);
+
+    try {
+      const reply = await requestInterviewReply(nextMessages);
+
+      setMessages([
+        ...nextMessages,
+        {
+          id: createMessageId(),
+          role: "assistant",
+          content: reply,
+        },
+      ]);
+    } catch (error) {
+      setMessages([
+        ...nextMessages,
+        {
+          id: createMessageId(),
+          role: "assistant",
+          content:
+            error instanceof Error
+              ? error.message
+              : "The interview assistant could not reply.",
+          status: "error",
+        },
+      ]);
+    } finally {
+      setIsSending(false);
+      window.setTimeout(() => inputRef.current?.focus(), 80);
+    }
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void sendMessage(input);
+  }
+
+  return (
+    <AnimatePresence>
+      {prompt ? (
+        <motion.div
+          className="fixed inset-0 z-[60] flex bg-[var(--color-paper)] text-[var(--color-ink)]"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Interview Jon chat"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.28, ease: MOTION_EASE }}
+        >
+          <div className="flex min-h-0 w-full flex-col">
+            <header className="flex min-h-[72px] items-center justify-between border-b border-black/8 px-5 md:min-h-[84px] md:px-10">
+              <div className="flex min-w-0 items-center gap-4">
+                <img
+                  src="/images/ai-jon.png"
+                  alt=""
+                  className="h-11 w-11 shrink-0 rounded-full object-cover md:h-12 md:w-12"
+                />
+                <div className="min-w-0">
+                  <p className="truncate font-serif text-[24px] font-semibold leading-none tracking-[-0.035em] md:text-[28px]">
+                    Ai Jon
+                  </p>
+                  <p className="mt-1 truncate text-xs font-bold uppercase leading-none tracking-[0] opacity-50">
+                    Like interviewing Jon but not really
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white/70 text-3xl leading-none text-[var(--color-ink)] transition hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent-blue)]"
+                aria-label="Close interview chat"
+              >
+                ×
+              </button>
+            </header>
+
+            <div
+              ref={scrollRef}
+              className="min-h-0 flex-1 overflow-y-auto px-5 py-8 md:px-10"
+            >
+              <div className="mx-auto flex max-w-[820px] flex-col gap-7">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={
+                      message.role === "user"
+                        ? "flex justify-end"
+                        : "flex justify-start"
+                    }
+                  >
+                    <div
+                      className={
+                        message.role === "user"
+                          ? "max-w-[82%] rounded-[28px] bg-[var(--color-ink)] px-5 py-3 text-[15px] leading-7 text-[var(--color-paper)] md:max-w-[68%]"
+                          : `max-w-[88%] rounded-[28px] border px-5 py-3 text-[15px] font-light leading-7 tracking-[-0.01em] md:max-w-[74%] md:text-[16px] ${
+                              message.status === "error"
+                                ? "border-[var(--color-cap-red)]/20 bg-[var(--color-cap-red)]/5 text-[var(--color-cap-red)]"
+                                : "border-black/8 bg-white text-[var(--color-ink)] shadow-[0_10px_28px_rgba(91,71,71,0.08)]"
+                            }`
+                      }
+                    >
+                      {message.status === "thinking" ? (
+                        <span className="inline-flex items-center gap-2 opacity-65">
+                          <span>{message.content}</span>
+                          <span className="flex gap-1" aria-hidden="true">
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current [animation-delay:120ms]" />
+                            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current [animation-delay:240ms]" />
+                          </span>
+                        </span>
+                      ) : (
+                        <InterviewMessageContent content={message.content} />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <form
+              onSubmit={handleSubmit}
+              className="border-t border-black/8 bg-[var(--color-paper)] px-5 py-4 md:px-10 md:py-6"
+            >
+              <div className="mx-auto flex max-w-[820px] items-end gap-3 rounded-[28px] border border-black/10 bg-white px-4 py-3 shadow-[0_18px_50px_rgba(91,71,71,0.11)] focus-within:border-[var(--color-cap-teal)]">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      void sendMessage(input);
+                    }
+                  }}
+                  rows={1}
+                  placeholder="Ask Jon a question"
+                  className="max-h-32 min-h-11 flex-1 resize-none bg-transparent py-2 text-base leading-7 text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink)]/45"
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isSending}
+                  className="flex h-11 min-w-20 items-center justify-center rounded-full bg-[var(--color-ink)] px-5 text-sm font-bold leading-none text-[var(--color-paper)] transition hover:bg-[var(--color-cap-teal)] disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  Send
+                </button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
 function Lightbox({
   item,
   onClose,
@@ -241,6 +783,8 @@ function Lightbox({
 
 export default function App() {
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const [activeInterviewPrompt, setActiveInterviewPrompt] =
+    useState<InterviewPrompt | null>(null);
   const currentYear = new Date().getFullYear();
 
   return (
@@ -299,6 +843,8 @@ export default function App() {
             </div>
           </div>
         </section>
+
+        <InterviewJonSection onStartConversation={setActiveInterviewPrompt} />
 
         <section className="px-7 pb-28 pt-20 md:px-0 md:pb-[118px] md:pt-[118px]">
           <div className="mx-auto max-w-[1440px] md:px-[168px]">
@@ -381,6 +927,10 @@ export default function App() {
       </main>
 
       <Lightbox item={selectedItem} onClose={() => setSelectedItem(null)} />
+      <InterviewChat
+        prompt={activeInterviewPrompt}
+        onClose={() => setActiveInterviewPrompt(null)}
+      />
     </>
   );
 }
